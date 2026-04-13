@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helport AI — Mortgage Live Transfer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #060a14;
+    --ink2: #0d1525;
+    --ink3: #121d32;
+    --surface: #162035;
+    --surface2: #1a2740;
+    --accent: #4f6ef7;
+    --accent2: #6c83f8;
+    --accent-glow: rgba(79,110,247,0.22);
+    --accent-subtle: rgba(79,110,247,0.09);
+    --teal: #2dd4bf;
+    --gold: #fbbf24;
+    --success: #34d399;
+    --text: #eef2ff;
+    --text-muted: #8ea0c0;
+    --text-dim: #3d5070;
+    --border: rgba(255,255,255,0.06);
+    --border-accent: rgba(79,110,247,0.28);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── ANIMATED BACKGROUND ─── */
+  .bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+
+  .bg-orb-1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(79,110,247,0.18) 0%, transparent 70%);
+    top: -15%; left: 10%;
+    animation-duration: 20s;
+  }
+
+  .bg-orb-2 {
+    width: 450px; height: 450px;
+    background: radial-gradient(circle, rgba(45,212,191,0.1) 0%, transparent 70%);
+    top: 30%; right: -5%;
+    animation-duration: 26s;
+    animation-delay: -8s;
+  }
+
+  .bg-orb-3 {
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(79,110,247,0.12) 0%, transparent 70%);
+    bottom: 10%; left: 20%;
+    animation-duration: 22s;
+    animation-delay: -4s;
+  }
+
+  @keyframes drift {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(40px, -30px) scale(1.08); }
+  }
+
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(79,110,247,0.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,110,247,0.028) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, black 10%, transparent 80%);
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    padding: 1rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.3s, border-color 0.3s;
+    background: rgba(6,10,20,0.75);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid transparent;
+  }
+
+  nav.scrolled {
+    border-bottom-color: var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .nav-logo .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 0 rgba(52,211,153,0.5);
+    animation: sonar 2.2s ease-out infinite;
+  }
+
+  @keyframes sonar {
+    0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.5); }
+    70% { box-shadow: 0 0 0 10px rgba(52,211,153,0); }
+    100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2.25rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.8375rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1.8;
+    padding: 2px 0;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-cta {
+    padding: 0.5rem 1.3rem;
+    background: var(--accent);
+    color: #fff !important;
+    border-radius: 7px;
+    font-weight: 500 !important;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s !important;
+    box-shadow: 0 0 20px rgba(79,110,247,0.35);
+  }
+
+  .nav-cta:hover {
+    background: var(--accent2) !important;
+    box-shadow: 0 0 28px rgba(79,110,247,0.55) !important;
+    transform: translateY(-1px);
+  }
+
+  /* ─── HERO ─── */
+  #hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 9rem 3rem 5rem;
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 1.75rem;
+    opacity: 0;
+    animation: riseIn 0.7s cubic-bezier(0.22,1,0.36,1) forwards 0.1s;
+  }
+
+  .hero-eyebrow .line {
+    width: 28px; height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(3rem, 6.5vw, 5.5rem);
+    line-height: 1.06;
+    font-weight: 400;
+    max-width: 850px;
+    opacity: 0;
+    animation: riseIn 0.85s cubic-bezier(0.22,1,0.36,1) forwards 0.22s;
+  }
+
+  h1 em {
+    font-style: italic;
+    background: linear-gradient(135deg, #a5b4fc 0%, var(--teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    margin-top: 1.75rem;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 540px;
+    font-weight: 300;
+    line-height: 1.8;
+    opacity: 0;
+    animation: riseIn 0.85s cubic-bezier(0.22,1,0.36,1) forwards 0.38s;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: riseIn 0.85s cubic-bezier(0.22,1,0.36,1) forwards 0.52s;
+  }
+
+  .btn-primary {
+    padding: 0.85rem 2.2rem;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    transition: all 0.25s;
+    box-shadow: 0 6px 28px rgba(79,110,247,0.4), 0 0 0 1px rgba(79,110,247,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(79,110,247,0.55), 0 0 0 1px rgba(79,110,247,0.4);
+  }
+
+  .btn-primary:hover::after { opacity: 1; }
+
+  .btn-ghost {
+    padding: 0.85rem 1.8rem;
+    border: 1px solid var(--border-accent);
+    color: var(--text-muted);
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    backdrop-filter: blur(4px);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    background: var(--accent-subtle);
+  }
+
+  /* stats */
+  .stats-row {
+    display: flex;
+    gap: 0;
+    margin-top: 5rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    max-width: 780px;
+    background: rgba(22,32,53,0.6);
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    animation: riseIn 0.85s cubic-bezier(0.22,1,0.36,1) forwards 0.68s;
+  }
+
+  .stat-item {
+    flex: 1;
+    padding: 1.5rem 1.75rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+
+  .stat-item:last-child { border-right: none; }
+
+  .stat-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .stat-item:hover::before { opacity: 1; }
+
+  .stat-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2rem;
+    color: var(--text);
+    line-height: 1;
+    display: block;
+  }
+
+  .stat-num .unit {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.875rem;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .stat-label {
+    font-size: 0.775rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+    display: block;
+    font-weight: 300;
+  }
+
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── LAYOUT ─── */
+  .page-section {
+    position: relative;
+    z-index: 1;
+  }
+
+  .inner {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 5.5rem 3rem;
+  }
+
+  .section-alt .inner { background: transparent; }
+
+  .section-alt {
+    background: linear-gradient(180deg, transparent 0%, rgba(22,32,53,0.4) 50%, transparent 100%);
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--accent2);
+    margin-bottom: 0.85rem;
+  }
+
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2rem, 4vw, 3.1rem);
+    line-height: 1.12;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 1.1rem;
+  }
+
+  h2 em {
+    font-style: italic;
+    color: #a5b4fc;
+  }
+
+  .section-lead {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 560px;
+    font-weight: 300;
+    line-height: 1.85;
+    margin-bottom: 3rem;
+  }
+
+  /* ─── SCROLL REVEAL ─── */
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ─── RECORDINGS (TOP) ─── */
+  .recordings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .rec-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rec-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .rec-card:hover {
+    border-color: var(--border-accent);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 0 20px var(--accent-glow);
+  }
+
+  .rec-card:hover::before { opacity: 1; }
+
+  .rec-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--success);
+    background: rgba(52,211,153,0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(52,211,153,0.2);
+  }
+
+  .live-badge::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: sonar 2s ease-out infinite;
+  }
+
+  .rec-duration {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-family: 'Syne', sans-serif;
+  }
+
+  .rec-title {
+    font-weight: 500;
+    font-size: 0.9375rem;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .rec-meta {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    font-weight: 300;
+  }
+
+  .rec-outcome {
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    background: rgba(79,110,247,0.07);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border-left: 2px solid var(--accent);
+    font-weight: 300;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+
+  .audio-player {
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  .audio-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(79,110,247,0.3);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .audio-placeholder:hover {
+    background: var(--accent-subtle);
+    border-color: var(--accent);
+  }
+
+  .play-btn {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 14px rgba(79,110,247,0.45);
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+
+  .audio-placeholder:hover .play-btn {
+    transform: scale(1.1);
+    box-shadow: 0 0 22px rgba(79,110,247,0.65);
+  }
+
+  .play-btn svg {
+    width: 13px; height: 13px;
+    fill: white;
+    margin-left: 2px;
+  }
+
+  .play-label {
+    font-size: 0.8375rem;
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  .play-sub {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+
+  /* ─── TESTIMONIALS ─── */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .testi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem 1.75rem;
+    position: relative;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    overflow: hidden;
+  }
+
+  .testi-card::after {
+    content: '\201C';
+    position: absolute;
+    top: -10px; right: 20px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 8rem;
+    color: var(--accent);
+    opacity: 0.08;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .testi-card:hover {
+    border-color: var(--border-accent);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.3), 0 0 16px var(--accent-glow);
+  }
+
+  .testi-quote {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+
+  .testi-quote strong {
+    color: var(--text);
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  .testi-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .testi-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--teal));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 0 16px rgba(79,110,247,0.3);
+  }
+
+  .testi-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .testi-role {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  /* ─── HOW IT WORKS ─── */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .step-card {
+    background: var(--surface);
+    padding: 2rem 1.75rem;
+    position: relative;
+    transition: background 0.3s;
+  }
+
+  .step-card:hover { background: var(--surface2); }
+
+  .step-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 3.5rem;
+    color: var(--ink3);
+    line-height: 1;
+    display: block;
+    margin-bottom: 1.25rem;
+  }
+
+  .step-accent-line {
+    width: 20px; height: 2px;
+    background: var(--accent);
+    margin-bottom: 0.85rem;
+    transition: width 0.3s;
+  }
+
+  .step-card:hover .step-accent-line { width: 36px; }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.01em;
+  }
+
+  .step-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.75;
+    font-weight: 300;
+  }
+
+  /* ─── THE SHIFT ─── */
+  .shift-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .shift-col {
+    padding: 2.5rem 2.25rem;
+  }
+
+  .shift-col.old { background: var(--ink2); }
+  .shift-col.new {
+    background: var(--surface);
+    border-left: 2px solid var(--accent);
+    box-shadow: inset 10px 0 30px rgba(79,110,247,0.04);
+  }
+
+  .shift-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+
+  .shift-col.old .shift-tag { color: var(--text-dim); }
+  .shift-col.new .shift-tag { color: var(--accent2); }
+
+  .shift-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 1.1rem;
+    font-size: 0.9rem;
+  }
+
+  .icon-x, .icon-check {
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .shift-col.old .shift-item { color: var(--text-dim); }
+  .shift-col.new .shift-item { color: var(--text-muted); }
+  .shift-col.new .shift-item strong { color: var(--text); font-weight: 500; }
+
+  /* ─── CASE STUDY ─── */
+  .case-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .case-nums {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .cn-item {
+    background: var(--surface);
+    padding: 1.75rem 1.5rem;
+    transition: background 0.3s;
+  }
+
+  .cn-item:hover { background: var(--surface2); }
+
+  .cn-big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.75rem;
+    line-height: 1;
+    color: var(--text);
+    display: block;
+  }
+
+  .cn-big .u {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .cn-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+    font-weight: 300;
+    display: block;
+  }
+
+  .case-text h3 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+
+  .case-text p {
+    font-size: 0.9125rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.85;
+    margin-bottom: 0.9rem;
+  }
+
+  .case-quote {
+    border-left: 2px solid var(--accent);
+    padding-left: 1.1rem;
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 0.9125rem;
+    margin-top: 1.25rem;
+    line-height: 1.75;
+  }
+
+  /* ─── PRICING ─── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .price-card {
+    background: var(--surface);
+    padding: 2rem 1.75rem;
+    transition: background 0.3s;
+  }
+
+  .price-card:hover { background: var(--surface2); }
+
+  .price-card.featured {
+    background: var(--surface2);
+    border-top: 2px solid var(--accent);
+    box-shadow: inset 0 6px 20px rgba(79,110,247,0.07);
+  }
+
+  .price-pill {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.67rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 1.25rem;
+  }
+
+  .featured .price-pill {
+    background: rgba(79,110,247,0.18);
+    color: var(--accent2);
+    border: 1px solid rgba(79,110,247,0.3);
+  }
+
+  :not(.featured) .price-pill {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .price-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+
+  .price-amount {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.75rem;
+    color: var(--text);
+    line-height: 1.1;
+    margin: 0.6rem 0;
+  }
+
+  .price-amount sup {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    vertical-align: top;
+    margin-top: 0.6rem;
+    color: var(--text-muted);
+  }
+
+  .price-per {
+    font-size: 0.825rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+  }
+
+  .price-list {
+    list-style: none;
+  }
+
+  .price-list li {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 300;
+  }
+
+  .price-list li::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  .price-list li:last-child { border-bottom: none; }
+
+  .roi-box {
+    margin-top: 1.5rem;
+    background: rgba(79,110,247,0.07);
+    border: 1px solid var(--border-accent);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .roi-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  .roi-box p {
+    font-size: 0.9125rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .roi-box strong { color: var(--gold); font-weight: 500; }
+
+  /* ─── CONTACT ─── */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+    align-items: start;
+  }
+
+  .form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .form-group input::placeholder,
+  .form-group textarea::placeholder { color: var(--text-dim); }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79,110,247,0.12);
+  }
+
+  .form-group select option { background: var(--ink2); }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+
+  .btn-submit {
+    padding: 0.9rem 2rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 6px 24px rgba(79,110,247,0.38);
+    align-self: flex-start;
+  }
+
+  .btn-submit:hover {
+    background: var(--accent2);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 36px rgba(79,110,247,0.5);
+  }
+
+  .contact-aside h3 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.7rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+
+  .contact-aside p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.85;
+    margin-bottom: 1rem;
+  }
+
+  .contact-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+  }
+
+  .contact-line svg {
+    width: 15px; height: 15px;
+    fill: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer-bar {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2rem 3rem;
+    max-width: 1140px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-bar p, .footer-bar a {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-bar a:hover { color: var(--text-muted); }
+
+  /* ─── DIVIDER ─── */
+  .page-divider {
+    position: relative;
+    z-index: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border) 30%, var(--border) 70%, transparent);
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+
+  /* ─── TRIGGER GAP SECTION ─── */
+  .trigger-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .trigger-col {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .trigger-col.solution {
+    border-color: var(--border-accent);
+    background: rgba(79,110,247,0.04);
+  }
+
+  .trigger-col-header {
+    padding: 1.5rem 1.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .trigger-col.solution .trigger-col-header {
+    border-bottom-color: var(--border-accent);
+  }
+
+  .trigger-col-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .problem-tag { color: var(--text-dim); }
+  .solution-tag { color: var(--accent2); }
+
+  .trigger-col-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  /* comparison table */
+  .trigger-comparison {
+    padding: 0;
+  }
+
+  .trigger-row {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .trigger-row:last-child { border-bottom: none; }
+
+  .trigger-cell {
+    padding: 0.9rem 1rem;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  .trigger-cell:last-child { border-right: none; }
+
+  .trigger-row.header-cell .trigger-cell,
+  .trigger-cell.header-cell {
+    background: rgba(255,255,255,0.02);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0.65rem 1rem;
+  }
+
+  .trigger-row.header-cell {
+    background: rgba(255,255,255,0.02);
+  }
+
+  .cell-label {
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+  }
+
+  .cell-sub {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    font-weight: 300;
+    line-height: 1.4;
+  }
+
+  .highlight-bad { background: rgba(239,68,68,0.03); }
+  .highlight-neutral { background: rgba(251,191,36,0.03); }
+  .highlight-good { background: rgba(79,110,247,0.06); }
+
+  .status-pill {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 20px;
+    width: fit-content;
+  }
+
+  .status-pill.bad {
+    background: rgba(239,68,68,0.12);
+    color: #f87171;
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+
+  .status-pill.neutral {
+    background: rgba(251,191,36,0.12);
+    color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.2);
+  }
+
+  .status-pill.good {
+    background: rgba(79,110,247,0.15);
+    color: var(--accent2);
+    border: 1px solid rgba(79,110,247,0.3);
+  }
+
+  .rate-display {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .rate-dots {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .rate-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .rate-dots .dot.filled {
+    background: #f87171;
+  }
+
+  .rate-dots .dot.filled.dim {
+    background: #f8717155;
+  }
+
+  .rate-dots .dot.filled.bright {
+    background: var(--teal);
+    box-shadow: 0 0 6px rgba(45,212,191,0.6);
+  }
+
+  .rate-dots .dot.empty {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .rate-label {
+    font-size: 0.72rem;
+    font-weight: 300;
+    line-height: 1.4;
+  }
+
+  .rate-label.good-rate  { color: #f87171; }
+  .rate-label.bad-rate   { color: var(--text-dim); }
+  .rate-label.best-rate  { color: var(--teal); }
+
+  /* solution col content */
+  .trigger-body {
+    padding: 1.5rem 1.75rem 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.85;
+  }
+
+  .trigger-callout {
+    padding: 1.25rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .trigger-callout-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.65;
+  }
+
+  .trigger-callout-line svg { flex-shrink: 0; margin-top: 2px; }
+  .trigger-callout-line strong { color: var(--text); font-weight: 500; }
+
+  .trigger-verdict {
+    margin: 0 1.75rem 1.75rem;
+    background: rgba(79,110,247,0.1);
+    border: 1px solid var(--border-accent);
+    border-radius: 8px;
+    padding: 1rem 1.1rem 1.1rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: var(--accent2);
+    line-height: 1.7;
+    position: relative;
+    overflow: visible;
+  }
+
+  .trigger-verdict::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  /* ─── MOBILE ─── */
+  @media (max-width: 900px) {
+    nav { padding: 0.9rem 1.5rem; }
+    .nav-links { display: none; }
+    #hero { padding: 7rem 1.5rem 4rem; }
+    .inner { padding: 4rem 1.5rem; }
+    .trigger-grid { grid-template-columns: 1fr; }
+    .trigger-row { grid-template-columns: 1fr; }
+    .trigger-cell { border-right: none; border-bottom: 1px solid var(--border); }
+    .trigger-cell:last-child { border-bottom: none; }
+    .shift-wrap, .case-grid, .contact-grid, .testimonials-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .stats-row { flex-wrap: wrap; }
+    .stat-item { flex: 1 1 45%; border-bottom: 1px solid var(--border); }
+    .form-row { grid-template-columns: 1fr; }
+    .footer-bar { flex-direction: column; align-items: flex-start; padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- AMBIENT BACKGROUND -->
+<div class="bg-canvas">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a class="nav-logo" href="#hero">
+    <span class="live-dot"></span>
+    Helport AI
+  </a>
+  <ul class="nav-links">
+    <li><a href="#recordings">Recordings</a></li>
+    <li><a href="#trigger-gap">Trigger Leads</a></li>
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact" class="nav-cta">Book a Call</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div id="hero">
+  <span class="hero-eyebrow">
+    <span class="line"></span>
+    Mortgage Live Transfer — Powered by Helport AI
+  </span>
+
+  <h1>Your loan officers close.<br><em>We deliver borrowers,</em><br>live on the line.</h1>
+
+  <p class="hero-sub">
+    Performance-based live transfer for mortgage teams. We dial your purchased leads,
+    qualify interested borrowers, and connect them live — so your LOs spend their time
+    closing, not cold calling.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#contact" class="btn-primary">Book a Discovery Call</a>
+    <a href="#recordings" class="btn-ghost">Hear our agents →</a>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-item">
+      <span class="stat-num">100%<span class="unit"></span></span>
+      <span class="stat-label">Of your lead list gets dialed</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">$0</span>
+      <span class="stat-label">Setup fee or retainer</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">15<span class="unit">x</span></span>
+      <span class="stat-label">ROI on Tier 1 transfers</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">Pay only on delivery</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- RECORDINGS — top priority section -->
+<div class="page-section" id="recordings">
+  <div class="inner">
+    <div class="reveal">
+      <span class="eyebrow">Live Transfer Recordings</span>
+      <h2>Hear our agents. Hear the handoffs.</h2>
+      <p class="section-lead">
+        Real recordings from our live transfer operation — borrowers already qualified and
+        engaged, transferred live to a loan officer while still on the phone. This is what your team receives, every time.
+      </p>
+    </div>
+
+    <div class="recordings-grid">
+      <div class="rec-card reveal delay-1">
+        <div class="rec-header">
+          <span class="live-badge">Live Transfer</span>
+          <span class="rec-duration">2:14</span>
+        </div>
+        <div class="rec-title">FHA Lead → Loan Officer Handoff</div>
+        <div class="rec-meta">First-time buyer · 620 credit score · pre-qual interest confirmed</div>
+        <div class="rec-outcome">Borrower confirmed FHA interest and was transferred live. LO completed pre-qualification same call.</div>
+        <div class="audio-placeholder" onclick="alert('Add your .mp3 file path here — replace this onclick with an <audio> element.')">
+          <div class="play-btn">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div>
+            <div class="play-label">Play Recording</div>
+            <div class="play-sub">Drop your .mp3 file to enable</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rec-card reveal delay-2">
+        <div class="rec-header">
+          <span class="live-badge">Live Transfer</span>
+          <span class="rec-duration">1:58</span>
+        </div>
+        <div class="rec-title">VA Refi Lead → Specialist Transfer</div>
+        <div class="rec-meta">Veteran · current rate 7.1% · VA streamline interest</div>
+        <div class="rec-outcome">Veteran confirmed active VA loan and rate reduction goal. Transferred to VA specialist within 3 minutes of first contact.</div>
+        <div class="audio-placeholder" onclick="alert('Add your .mp3 file path here.')">
+          <div class="play-btn">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div>
+            <div class="play-label">Play Recording</div>
+            <div class="play-sub">Drop your .mp3 file to enable</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rec-card reveal delay-3">
+        <div class="rec-header">
+          <span class="live-badge">Live Transfer</span>
+          <span class="rec-duration">3:02</span>
+        </div>
+        <div class="rec-title">Refi Lead → Cash-Out Conversation</div>
+        <div class="rec-meta">Homeowner · 6.8% rate · equity available · open to cash-out</div>
+        <div class="rec-outcome">Borrower confirmed equity position and interest in rate options. Connected live to discuss cash-out refi potential.</div>
+        <div class="audio-placeholder" onclick="alert('Add your .mp3 file path here.')">
+          <div class="play-btn">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div>
+            <div class="play-label">Play Recording</div>
+            <div class="play-sub">Drop your .mp3 file to enable</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- TESTIMONIALS -->
+<div class="page-section section-alt" id="testimonials">
+  <div class="inner">
+    <div class="reveal">
+      <span class="eyebrow">Client Testimonials</span>
+      <h2>What our partners say</h2>
+    </div>
+
+    <div class="testimonials-grid reveal">
+      <div class="testi-card">
+        <p class="testi-quote">
+          "We've tried a lot of lead vendors. What Helport does is different — <strong>we're not buying leads, we're receiving conversations.</strong> The agent quality is consistent, the borrowers are actually warm, and the volume holds week over week. It's become a core part of how our team operates."
+        </p>
+        <div class="testi-author">
+          <div class="testi-avatar">JA</div>
+          <div>
+            <div class="testi-name">James Assk</div>
+            <div class="testi-role">Branch Manager · Texana Bank</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <p class="testi-quote">
+          "My team was burning out on prospecting before we started with Helport. Now <strong>our LOs only talk to people who already want to be on the phone.</strong> Transfer quality is high, the handoffs are clean, and we're closing more in less time. Simple model, real results."
+        </p>
+        <div class="testi-author">
+          <div class="testi-avatar">KH</div>
+          <div>
+            <div class="testi-name">Ken Hirschmann</div>
+            <div class="testi-role">Lending Director · Best Life &amp; Co</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- HOW IT WORKS -->
+<div class="page-section" id="how-it-works">
+  <div class="inner">
+    <div class="reveal">
+      <span class="eyebrow">The Process</span>
+      <h2>From lead list to <em>live conversation</em></h2>
+      <p class="section-lead">
+        We sit between your purchased leads and your loan officers. No new technology to buy. No process to overhaul. Just a dedicated team dialing and qualifying on your behalf — every day.
+      </p>
+    </div>
+
+    <div class="steps-grid reveal">
+      <div class="step-card">
+        <span class="step-num">01</span>
+        <div class="step-accent-line"></div>
+        <div class="step-title">You provide your lead list</div>
+        <div class="step-desc">Hand us your FHA, VA, refi, or purchase leads — whatever you're already buying from your vendor.</div>
+      </div>
+      <div class="step-card">
+        <span class="step-num">02</span>
+        <div class="step-accent-line"></div>
+        <div class="step-title">We dial and qualify</div>
+        <div class="step-desc">Our team calls at high volume, identifies interested borrowers, and filters out dead leads before they reach your LOs.</div>
+      </div>
+      <div class="step-card">
+        <span class="step-num">03</span>
+        <div class="step-accent-line"></div>
+        <div class="step-title">Live transfer while they're warm</div>
+        <div class="step-desc">When a borrower confirms interest, we connect them live — directly to your loan officer, while still on the call.</div>
+      </div>
+      <div class="step-card">
+        <span class="step-num">04</span>
+        <div class="step-accent-line"></div>
+        <div class="step-title">You close. We repeat.</div>
+        <div class="step-desc">Your LO takes it from there. We move on to the next transfer. A predictable pipeline — delivered daily.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- THE SHIFT -->
+<div class="page-section section-alt">
+  <div class="inner">
+    <div class="reveal">
+      <span class="eyebrow">The Shift</span>
+      <h2>Stop burning closers on cold calls</h2>
+      <p class="section-lead">
+        Loan officers are hired to close. Most teams waste that capacity on prospecting work that a dedicated dialing operation handles better, faster, and cheaper.
+      </p>
+    </div>
+
+    <div class="shift-wrap reveal">
+      <div class="shift-col old">
+        <span class="shift-tag">Without Helport</span>
+        <div class="shift-item">
+          <svg class="icon-x" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="#3d5070" stroke-width="1.5"/>
+            <path d="M7 13L13 7M7 7l6 6" stroke="#3d5070" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          LOs spend hours dialing cold leads
+        </div>
+        <div class="shift-item">
+          <svg class="icon-x" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="#3d5070" stroke-width="1.5"/>
+            <path d="M7 13L13 7M7 7l6 6" stroke="#3d5070" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          70%+ of purchased leads go unreached
+        </div>
+        <div class="shift-item">
+          <svg class="icon-x" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="#3d5070" stroke-width="1.5"/>
+            <path d="M7 13L13 7M7 7l6 6" stroke="#3d5070" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Conversion window closes under 24 hours
+        </div>
+        <div class="shift-item">
+          <svg class="icon-x" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="#3d5070" stroke-width="1.5"/>
+            <path d="M7 13L13 7M7 7l6 6" stroke="#3d5070" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          LO burnout and high team turnover
+        </div>
+        <div class="shift-item">
+          <svg class="icon-x" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="#3d5070" stroke-width="1.5"/>
+            <path d="M7 13L13 7M7 7l6 6" stroke="#3d5070" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Unpredictable, inconsistent pipeline
+        </div>
+      </div>
+
+      <div class="shift-col new">
+        <span class="shift-tag">With Helport Live Transfer</span>
+        <div class="shift-item">
+          <svg class="icon-check" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="#4f6ef7" stroke-width="1.5"/>
+            <path d="M6.5 10L9 12.5L13.5 8" stroke="#4f6ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>LOs <strong>only speak to ready borrowers</strong></span>
+        </div>
+        <div class="shift-item">
+          <svg class="icon-check" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="#4f6ef7" stroke-width="1.5"/>
+            <path d="M6.5 10L9 12.5L13.5 8" stroke="#4f6ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span><strong>Full lead list dialed</strong> — zero waste</span>
+        </div>
+        <div class="shift-item">
+          <svg class="icon-check" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="#4f6ef7" stroke-width="1.5"/>
+            <path d="M6.5 10L9 12.5L13.5 8" stroke="#4f6ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Transfers happen <strong>inside the 24-hour window</strong></span>
+        </div>
+        <div class="shift-item">
+          <svg class="icon-check" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="#4f6ef7" stroke-width="1.5"/>
+            <path d="M6.5 10L9 12.5L13.5 8" stroke="#4f6ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>LOs <strong>focused on closing</strong> — zero prospecting fatigue</span>
+        </div>
+        <div class="shift-item">
+          <svg class="icon-check" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="9" stroke="#4f6ef7" stroke-width="1.5"/>
+            <path d="M6.5 10L9 12.5L13.5 8" stroke="#4f6ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span><strong>Predictable deal flow</strong> — same model, every month</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- TRIGGER LEAD GAP SECTION -->
+<div class="page-section section-alt" id="trigger-gap">
+  <div class="inner">
+    <div class="reveal">
+      <span class="eyebrow">The Hard Truth for Refi Shops</span>
+      <h2>Credit triggers are gone.<br><em>The gap is real.</em></h2>
+      <p class="section-lead">
+        If your brokerage ran on trigger leads, you already know the pain. Those leads were reactive — the customer already started the process. VA and FHA lists are proactive. The math is different, and most teams aren't built for it.
+      </p>
+    </div>
+
+    <div class="trigger-grid reveal">
+
+      <!-- Left: the problem -->
+      <div class="trigger-col problem">
+        <div class="trigger-col-header">
+          <span class="trigger-col-tag problem-tag">The Problem</span>
+          <h3>Reactive leads vs. proactive lists</h3>
+        </div>
+        <div class="trigger-comparison">
+          <div class="trigger-row">
+            <div class="trigger-cell header-cell">Lead Type</div>
+            <div class="trigger-cell header-cell">Borrower Intent</div>
+            <div class="trigger-cell header-cell">LO Conversion Rate</div>
+          </div>
+          <div class="trigger-row highlight-bad">
+            <div class="trigger-cell">
+              <span class="cell-label">Trigger Leads</span>
+              <span class="cell-sub">Now removed for many brokerages</span>
+            </div>
+            <div class="trigger-cell">
+              <span class="status-pill bad">Reactive</span>
+              <span class="cell-sub">Customer already started a loan</span>
+            </div>
+            <div class="trigger-cell">
+              <div class="rate-display">
+                <span class="rate-dots">
+                  <span class="dot filled"></span>
+                  <span class="dot filled"></span>
+                  <span class="dot filled"></span>
+                  <span class="dot filled"></span>
+                  <span class="dot empty"></span>
+                </span>
+                <span class="rate-label good-rate">High — borrower is ready</span>
+              </div>
+            </div>
+          </div>
+          <div class="trigger-row highlight-neutral">
+            <div class="trigger-cell">
+              <span class="cell-label">VA / FHA Lists alone</span>
+              <span class="cell-sub">Without a dialing operation</span>
+            </div>
+            <div class="trigger-cell">
+              <span class="status-pill neutral">Proactive</span>
+              <span class="cell-sub">Must convince them to start</span>
+            </div>
+            <div class="trigger-cell">
+              <div class="rate-display">
+                <span class="rate-dots">
+                  <span class="dot filled dim"></span>
+                  <span class="dot empty"></span>
+                  <span class="dot empty"></span>
+                  <span class="dot empty"></span>
+                  <span class="dot empty"></span>
+                </span>
+                <span class="rate-label bad-rate">Low — most leads go cold</span>
+              </div>
+            </div>
+          </div>
+          <div class="trigger-row highlight-good">
+            <div class="trigger-cell">
+              <span class="cell-label" style="color:var(--accent2);">VA / FHA Lists</span>
+              <span class="cell-sub" style="color:var(--accent2);opacity:0.8;font-weight:500;">+ Helport Live Transfer</span>
+            </div>
+            <div class="trigger-cell">
+              <span class="status-pill good">Proactive + Volume</span>
+              <span class="cell-sub">Dialed at scale, every day</span>
+            </div>
+            <div class="trigger-cell">
+              <div class="rate-display">
+                <span class="rate-dots">
+                  <span class="dot filled bright"></span>
+                  <span class="dot filled bright"></span>
+                  <span class="dot filled bright"></span>
+                  <span class="dot filled bright"></span>
+                  <span class="dot filled bright"></span>
+                </span>
+                <span class="rate-label best-rate">Highest — live, warm transfers</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: the solution -->
+      <div class="trigger-col solution">
+        <div class="trigger-col-header">
+          <span class="trigger-col-tag solution-tag">The Solution</span>
+          <h3>High-frequency dialing fills the gap</h3>
+        </div>
+        <p class="trigger-body">
+          To survive without trigger leads, you need a high-frequency dialing operation reaching eligible borrowers the moment the math makes sense for them — rate drop, equity unlock, loan maturity. That window is short. Most internal teams can't dial at the volume needed to catch it.
+        </p>
+        <div class="trigger-callout">
+          <div class="trigger-callout-line">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="9" stroke="#4f6ef7" stroke-width="1.5"/>
+              <path d="M6.5 10L9 12.5L13.5 8" stroke="#4f6ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>We dial your VA/FHA list at <strong>high frequency</strong> — every eligible record, every day</span>
+          </div>
+          <div class="trigger-callout-line">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="9" stroke="#4f6ef7" stroke-width="1.5"/>
+              <path d="M6.5 10L9 12.5L13.5 8" stroke="#4f6ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>We catch borrowers <strong>the moment they're ready</strong> — inside the 24-hour conversion window</span>
+          </div>
+          <div class="trigger-callout-line">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="9" stroke="#4f6ef7" stroke-width="1.5"/>
+              <path d="M6.5 10L9 12.5L13.5 8" stroke="#4f6ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>We transfer them <strong>live while they're warm</strong> — your LO closes, not cold calls</span>
+          </div>
+          <div class="trigger-callout-line">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="9" stroke="#4f6ef7" stroke-width="1.5"/>
+              <path d="M6.5 10L9 12.5L13.5 8" stroke="#4f6ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span><strong>Performance-based</strong> — you only pay per transfer delivered, not per dial</span>
+          </div>
+        </div>
+        <div class="trigger-verdict">
+          Helport is the high-frequency dialing layer your proactive list strategy requires.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- CASE STUDY -->
+<div class="page-section" id="results">
+  <div class="inner">
+    <div class="reveal">
+      <span class="eyebrow">Proof of Concept</span>
+      <h2>Real results from a live campaign</h2>
+    </div>
+
+    <div class="case-grid reveal">
+      <div class="case-nums">
+        <div class="cn-item">
+          <span class="cn-big">10<span class="u">/mo</span></span>
+          <span class="cn-label">Closed loans/mo — small team baseline</span>
+        </div>
+        <div class="cn-item">
+          <span class="cn-big">$0</span>
+          <span class="cn-label">Prospecting labor cost</span>
+        </div>
+        <div class="cn-item">
+          <span class="cn-big">100%</span>
+          <span class="cn-label">LO time on active closes</span>
+        </div>
+        <div class="cn-item">
+          <span class="cn-big">7<span class="u">–15x</span></span>
+          <span class="cn-label">Return on transfer spend</span>
+        </div>
+      </div>
+
+      <div class="case-text">
+        <h3>From lead list to 10+ closed loans a month — for a small team</h3>
+        <p>
+          A small to mid-size mortgage client handed us their purchased FHA and VA lead list — a team that wouldn't be considered high volume by any standard. Our team took over all dialing and qualification. Their loan officers stopped prospecting entirely and only took calls from borrowers who had already confirmed they wanted to speak with someone about a loan.
+        </p>
+        <p>
+          The result: 10+ closed loans per month — consistently — from a small team that previously struggled to work their lead list at volume. Larger teams scale proportionally. This is the floor, not the ceiling.
+        </p>
+        <div class="case-quote">
+          "Their LOs weren't prospecting at all. They were just closing."
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- PRICING -->
+<div class="page-section section-alt" id="pricing">
+  <div class="inner">
+    <div class="reveal">
+      <span class="eyebrow">Pricing</span>
+      <h2>Pay only for what's delivered</h2>
+      <p class="section-lead">
+        No retainer. No setup fee. No monthly minimum. You pay per live transfer — only when a qualified borrower is on the line with your team.
+      </p>
+    </div>
+
+    <div class="pricing-grid reveal">
+      <div class="price-card" data-tier="1" data-price="18" data-cost-per-loan="360" data-close-rate="5" data-roi-low="7.5" data-roi-high="15" data-tier-name="Tier 1 (Express Connect)">
+        <span class="price-pill">Tier 1</span>
+        <div class="price-name">Express Connect</div>
+        <div class="price-amount"><sup>$</sup>18</div>
+        <div class="price-per">per live transfer</div>
+        <ul class="price-list">
+          <li>Basic qualification</li>
+          <li>High volume output</li>
+          <li>Confirmed interest before transfer</li>
+          <li>Best entry point — easiest yes</li>
+        </ul>
+      </div>
+
+      <div class="price-card featured" data-tier="2" data-price="35" data-cost-per-loan="700" data-close-rate="5" data-roi-low="3.9" data-roi-high="7.7" data-tier-name="Tier 2 (Qualified Transfer)">
+        <span class="price-pill">Most Popular</span>
+        <div class="price-name">Qualified Transfer</div>
+        <div class="price-amount"><sup>$</sup>35</div>
+        <div class="price-per">per live transfer</div>
+        <ul class="price-list">
+          <li>Deeper pre-qualification</li>
+          <li>Loan type confirmed (FHA / VA / Refi)</li>
+          <li>Higher intent borrowers</li>
+          <li>Ideal for mid-volume teams</li>
+        </ul>
+      </div>
+
+      <div class="price-card" data-tier="3" data-price="65" data-cost-per-loan="1300" data-close-rate="5" data-roi-low="2.1" data-roi-high="4.2" data-tier-name="Tier 3 (Premium Verified)">
+        <span class="price-pill">Tier 3</span>
+        <div class="price-name">Premium Verified</div>
+        <div class="price-amount"><sup>$</sup>65</div>
+        <div class="price-per">per live transfer</div>
+        <ul class="price-list">
+          <li>Full pre-qualification before transfer</li>
+          <li>Credit, income, property confirmed</li>
+          <li>Highest-intent borrowers</li>
+          <li>Best for closing-focused teams</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="roi-box reveal" id="roiBox">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+        <span style="font-family:'Syne',sans-serif;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;color:var(--accent2);">ROI Calculator</span>
+        <span id="roiTierLabel" style="font-family:'Syne',sans-serif;font-size:0.75rem;font-weight:600;color:var(--text-muted);transition:color 0.3s;">Hover a tier to see its ROI breakdown</span>
+      </div>
+      <p id="roiText">
+        At a 5% close rate on <strong id="roiTierSpan">Tier 1 (Express Connect)</strong> transfers at <strong id="roiPrice">$18</strong> each, the cost per funded loan is approximately <strong id="roiCostPerLoan" style="color:var(--gold);">$360</strong>. Against typical LO commissions of $2,700–$5,400 per closed deal, that's a <strong id="roiReturn" style="color:var(--gold);">7.5x to 15x return on every transfer dollar spent</strong> — and you only pay when a live borrower is on the line.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- CONTACT -->
+<div class="page-section" id="contact">
+  <div class="inner">
+    <div class="reveal">
+      <span class="eyebrow">Get Started</span>
+      <h2>Let's talk about your pipeline</h2>
+    </div>
+
+    <div class="contact-grid reveal">
+      <div class="form-stack">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full name</label>
+            <input type="text" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label>Company / Branch</label>
+            <input type="text" placeholder="Company name">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="you@company.com">
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="+1 (000) 000-0000">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Lead type</label>
+            <select>
+              <option value="" disabled selected>Select your lead type</option>
+              <option>FHA Leads</option>
+              <option>VA Leads</option>
+              <option>Refi Leads</option>
+              <option>Purchase Leads</option>
+              <option>Mixed / Multiple</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Team size</label>
+            <select>
+              <option value="" disabled selected>Number of loan officers</option>
+              <option>&lt;5</option>
+              <option>5–10</option>
+              <option>10–20</option>
+              <option>20+</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Anything else</label>
+          <textarea placeholder="Current team size, volume goals, or questions"></textarea>
+        </div>
+        <button class="btn-submit">Request a Discovery Call →</button>
+      </div>
+
+      <div class="contact-aside">
+        <h3>We'll get back to you within one business day</h3>
+        <p>
+          This isn't a software demo. We'll spend 20–30 minutes understanding your current setup, tell you exactly what we can deliver, and if it's a fit — your first transfers can be running within days.
+        </p>
+        <p>
+          Already have a lead list? Bring it to the call. We'll walk through projected volume and ROI before you commit to anything.
+        </p>
+        <div class="contact-line">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3852594b5756165f4d78505d5448574a4c165951">[email&#160;protected]</a>
+        </div>
+        <div class="contact-line">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          Powered by Helport AI
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-bar">
+  <p>© 2025 Helport AI. All rights reserved.</p>
+  <div style="display:flex;gap:1.5rem;">
+    <a href="#">helport.ai</a>
+    <a href="/cdn-cgi/l/email-protection#224843514d4c0c4557624a474e524d50560c434b">Contact</a>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  // Nav scroll state
+  const nav = document.getElementById('mainNav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Pricing ROI — dynamic callout on hover
+  const roiTierSpan = document.getElementById('roiTierSpan');
+  const roiPrice = document.getElementById('roiPrice');
+  const roiCostPerLoan = document.getElementById('roiCostPerLoan');
+  const roiReturn = document.getElementById('roiReturn');
+  const roiTierLabel = document.getElementById('roiTierLabel');
+
+  function updateRoi(card) {
+    roiTierSpan.textContent = card.dataset.tierName;
+    roiPrice.textContent = '$' + card.dataset.price;
+    roiCostPerLoan.textContent = '$' + card.dataset.costPerLoan;
+    roiReturn.textContent = card.dataset.roiLow + 'x to ' + card.dataset.roiHigh + 'x return on every transfer dollar spent';
+    roiTierLabel.textContent = '← ' + card.dataset.tierName;
+    roiTierLabel.style.color = 'var(--accent2)';
+  }
+
+  function resetRoi() {
+    roiTierSpan.textContent = 'Tier 1 (Express Connect)';
+    roiPrice.textContent = '$18';
+    roiCostPerLoan.textContent = '$360';
+    roiReturn.textContent = '7.5x to 15x return on every transfer dollar spent';
+    roiTierLabel.textContent = 'Hover a tier to see its ROI brea
